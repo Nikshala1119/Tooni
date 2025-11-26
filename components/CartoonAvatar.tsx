@@ -108,22 +108,31 @@ const CartoonAvatar: React.FC<CartoonAvatarProps> = ({ volume, isTalking, isList
           {isTalking ? (
             <ellipse
               cx="384"
-              cy={463 + mouthOpen/3}
-              rx={15 + mouthOpen/2}
-              ry={mouthOpen/2 + 3}
+              cy={463 + mouthOpen/2}
+              rx={20 + mouthOpen}
+              ry={mouthOpen + 5}
               fill="#4a1c1c"
               stroke="#2a1010"
               strokeWidth="2"
             />
-          ) : null}
+          ) : (
+            /* Closed mouth - small downward pointing triangle */
+            <path
+              d="M 374 460 L 394 460 L 384 470 Z"
+              fill="#4a1c1c"
+              stroke="#2a1010"
+              strokeWidth="1.5"
+              strokeLinejoin="round"
+            />
+          )}
 
           {/* Tongue when mouth is wide open */}
           {isTalking && mouthOpen > 12 && (
             <ellipse
               cx="384"
-              cy={468 + mouthOpen/3}
-              rx="8"
-              ry="4"
+              cy={470 + mouthOpen/2}
+              rx="10"
+              ry="5"
               fill="#e57373"
             />
           )}
