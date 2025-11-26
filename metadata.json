@@ -1,0 +1,7 @@
+{
+  "name": "Shinchan English Tutor",
+  "description": "A conversational English learning companion for kids, powered by Gemini Live API.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
