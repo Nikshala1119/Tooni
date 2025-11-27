@@ -59,7 +59,7 @@ const CHARACTER_CONFIG = {
 };
 
 // Audio configuration constants
-const NOISE_GATE_THRESHOLD = 0.025; // Minimum amplitude to send audio (filters background noise)
+const NOISE_GATE_THRESHOLD = 0.01; // Minimum amplitude to send audio (filters background noise)
 const INPUT_LEVEL_SMOOTHING = 0.3; // Smoothing factor for input level visualization
 
 export function useLiveSession(character: Character = 'shinchan') {
@@ -285,12 +285,21 @@ export function useLiveSession(character: Character = 'shinchan') {
 
                 // Start pumping audio from mic with noise gate and greeting protection
                 let audioSendCount = 0;
+                let debugLogCount = 0;
                 scriptProcessor.onaudioprocess = (e) => {
+                    debugLogCount++;
+
                     // Skip sending audio if muted
-                    if (isMutedRef.current) return;
+                    if (isMutedRef.current) {
+                        if (debugLogCount % 100 === 0) console.log('[Audio] Skipped - muted');
+                        return;
+                    }
 
                     // Skip sending audio until character finishes greeting
-                    if (!isGreetingCompleteRef.current) return;
+                    if (!isGreetingCompleteRef.current) {
+                        if (debugLogCount % 100 === 0) console.log('[Audio] Skipped - waiting for greeting');
+                        return;
+                    }
 
                     const inputData = e.inputBuffer.getChannelData(0);
 
@@ -304,21 +313,38 @@ export function useLiveSession(character: Character = 'shinchan') {
                         if (absVal > maxVal) maxVal = absVal;
                     }
 
+                    // Log amplitude periodically for debugging
+                    if (debugLogCount % 50 === 0) {
+                        console.log(`[Audio] Max amplitude: ${maxVal.toFixed(4)}, threshold: ${NOISE_GATE_THRESHOLD}, greeting complete: ${isGreetingCompleteRef.current}`);
+                    }
+
                     // Filter out background noise - only send audio above threshold
                     if (maxVal < NOISE_GATE_THRESHOLD) {
                         return; // Don't send quiet/background noise
                     }
 
-                    // Log every 50th chunk to avoid spam
+                    // Log audio being sent
                     audioSendCount++;
-                    if (audioSendCount % 50 === 0) {
-                        console.log(`Sending audio chunk #${audioSendCount}, max amplitude: ${maxVal.toFixed(4)}`);
+                    if (audioSendCount % 10 === 0) {
+                        console.log(`[Audio] Sending chunk #${audioSendCount}, amplitude: ${maxVal.toFixed(4)}`);
                     }
 
                     const pcmBlob = createPcmBlob(resampledData);
-                    sessionPromise.then(session => {
-                        session.sendRealtimeInput({ media: pcmBlob });
-                    });
+
+                    // Use sessionRef if available, otherwise fall back to sessionPromise
+                    if (sessionRef.current) {
+                        try {
+                            sessionRef.current.sendRealtimeInput({ media: pcmBlob });
+                        } catch (err) {
+                            console.error('[Audio] Failed to send via sessionRef:', err);
+                        }
+                    } else {
+                        sessionPromise.then(session => {
+                            session.sendRealtimeInput({ media: pcmBlob });
+                        }).catch(err => {
+                            console.error('[Audio] Failed to send via promise:', err);
+                        });
+                    }
                 };
             },
             onmessage: async (message: LiveServerMessage) => {
