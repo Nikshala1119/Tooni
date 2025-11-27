@@ -3,7 +3,22 @@ import { GoogleGenAI, LiveServerMessage, Modality } from '@google/genai';
 import { ConnectionState } from '../types';
 import { base64ToBytes, createPcmBlob, decodeAudioData, resampleAudio } from '../utils/audioUtils';
 
-export function useLiveSession() {
+export type Character = 'shinchan' | 'bluey';
+
+const CHARACTER_CONFIG = {
+  shinchan: {
+    systemInstruction: "You are Shinchan Nohara, a 5-year-old kindergarten boy. You are funny, energetic, and slightly mischievous but very kind. You are helping a user (who is a friend) practice English. Speak in simple, short sentences suitable for a beginner or a child. If the user makes a mistake, gently correct them in a funny way. Do not be rude, just playful. Use words like 'Oho!', 'Hey hey!'. Keep responses concise.",
+    voiceName: 'Kore',
+    greeting: 'Hello! Greet me as Shinchan!'
+  },
+  bluey: {
+    systemInstruction: "You are Bluey Heeler, a 6-year-old Blue Heeler puppy from Brisbane, Australia. You are imaginative, playful, and love games. You are helping a user (who is a friend) practice English. Speak in simple, enthusiastic sentences. Be curious and ask questions about what games the user likes. Use Australian expressions occasionally like 'G'day!' or 'No worries!'. If the user makes a mistake, help them kindly. Keep responses fun and concise.",
+    voiceName: 'Puck',
+    greeting: 'Hello! Greet me as Bluey the puppy!'
+  }
+};
+
+export function useLiveSession(character: Character = 'shinchan') {
   const [connectionState, setConnectionState] = useState<ConnectionState>(ConnectionState.DISCONNECTED);
   const [volume, setVolume] = useState(0);
   const [isTalking, setIsTalking] = useState(false);
@@ -132,27 +147,28 @@ export function useLiveSession() {
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       
       // 4. Connect to Live API
+      const config = CHARACTER_CONFIG[character];
       const sessionPromise = ai.live.connect({
         model: 'gemini-2.5-flash-native-audio-preview-09-2025',
         config: {
             responseModalities: [Modality.AUDIO],
             speechConfig: {
-                voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Kore' } }
+                voiceConfig: { prebuiltVoiceConfig: { voiceName: config.voiceName } }
             },
-            systemInstruction: "You are Shinchan Nohara, a 5-year-old kindergarten boy. You are funny, energetic, and slightly mischievous but very kind. You are helping a user (who is a friend) practice English. Speak in simple, short sentences suitable for a beginner or a child. If the user makes a mistake, gently correct them in a funny way. Do not be rude, just playful. Use words like 'Oho!', 'Hey hey!'. Keep responses concise."
+            systemInstruction: config.systemInstruction
         },
         callbacks: {
             onopen: () => {
                 console.log("Connected to Gemini Live API");
                 setConnectionState(ConnectionState.CONNECTED);
 
-                // Send initial greeting to make Shinchan speak first
+                // Send initial greeting to make character speak first
                 sessionPromise.then(session => {
                     session.sendClientContent({
-                        turns: [{ role: 'user', parts: [{ text: 'Hello! Greet me as Shinchan!' }] }],
+                        turns: [{ role: 'user', parts: [{ text: config.greeting }] }],
                         turnComplete: true
                     });
-                    console.log("Sent initial greeting prompt");
+                    console.log("Sent initial greeting prompt for", character);
                 });
 
                 // Start pumping audio from mic (only when not muted)
@@ -251,7 +267,7 @@ export function useLiveSession() {
       setConnectionState(ConnectionState.ERROR);
       cleanup();
     }
-  }, [connectionState, cleanup]);
+  }, [connectionState, cleanup, character]);
 
   const toggleMute = useCallback(() => {
     const newMutedState = !isMutedRef.current;
