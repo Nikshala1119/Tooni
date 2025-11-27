@@ -7,7 +7,7 @@ import { ConnectionState } from './types';
 
 export default function App() {
   const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null);
-  const { connect, disconnect, connectionState, volume, isTalking, isMuted, toggleMute } = useLiveSession(selectedCharacter || 'shinchan');
+  const { connect, disconnect, connectionState, volume, inputLevel, isTalking, isMuted, isGreetingComplete, toggleMute } = useLiveSession(selectedCharacter || 'shinchan');
   const [hasInteracted, setHasInteracted] = useState(false);
 
   const handleSelectCharacter = (character: Character) => {
@@ -113,7 +113,7 @@ export default function App() {
              <BlueyAvatar
                volume={volume}
                isTalking={isTalking}
-               isListening={isConnected && !isTalking}
+               isListening={isConnected && !isTalking && isGreetingComplete}
                isConnected={isConnected || isConnecting}
                isMuted={isMuted}
              />
@@ -121,7 +121,7 @@ export default function App() {
              <CartoonAvatar
                volume={volume}
                isTalking={isTalking}
-               isListening={isConnected && !isTalking}
+               isListening={isConnected && !isTalking && isGreetingComplete}
                isConnected={isConnected || isConnecting}
                isMuted={isMuted}
              />
@@ -159,24 +159,55 @@ export default function App() {
             )}
 
             {isConnected && (
-                <div className="flex gap-2 sm:gap-3">
-                    <button
-                        onClick={toggleMute}
-                        className={`px-4 sm:px-6 py-3 sm:py-4 font-bold text-white transition-all duration-200 rounded-full shadow-lg hover:scale-105 active:scale-95 focus:outline-none ring-offset-2 focus:ring-2 ${
-                            isMuted
-                                ? 'bg-yellow-500 hover:bg-yellow-600 ring-yellow-400'
-                                : 'bg-blue-500 hover:bg-blue-600 ring-blue-400'
-                        }`}
-                    >
-                        <span className="text-lg sm:text-xl">{isMuted ? '🔇' : '🎤'}</span>
-                    </button>
-                    <button
-                        onClick={handleStop}
-                        className="px-5 sm:px-8 py-3 sm:py-4 font-bold text-white text-sm sm:text-base transition-all duration-200 bg-red-500 rounded-full shadow-lg hover:bg-red-600 hover:scale-105 active:scale-95 focus:outline-none ring-offset-2 focus:ring-2 ring-red-400"
-                    >
-                        <span className="mr-1 sm:mr-2 text-lg sm:text-xl">🛑</span>
-                        End Call
-                    </button>
+                <div className="flex flex-col items-center gap-3 sm:gap-4">
+                    {/* Waiting for greeting message */}
+                    {!isGreetingComplete && (
+                        <div className="flex items-center gap-2 px-4 py-2 bg-amber-100 text-amber-800 rounded-full text-xs sm:text-sm font-medium border border-amber-200 animate-pulse">
+                            <span>👋</span>
+                            <span>{characterName} is saying hello...</span>
+                        </div>
+                    )}
+
+                    {/* Mic Input Level Indicator - shows when greeting is complete */}
+                    {isGreetingComplete && !isMuted && (
+                        <div className="w-full max-w-48 sm:max-w-56">
+                            <div className="flex items-center gap-2 mb-1">
+                                <span className="text-xs sm:text-sm font-medium text-slate-600">🎤 Your voice</span>
+                                <span className="text-[10px] sm:text-xs text-slate-400">
+                                    {inputLevel > 0.3 ? '👍 Good!' : inputLevel > 0.1 ? 'Speak up!' : 'Too quiet'}
+                                </span>
+                            </div>
+                            <div className="h-2 sm:h-3 bg-slate-200 rounded-full overflow-hidden">
+                                <div
+                                    className={`h-full transition-all duration-75 rounded-full ${
+                                        inputLevel > 0.3 ? 'bg-green-500' : inputLevel > 0.1 ? 'bg-yellow-500' : 'bg-red-400'
+                                    }`}
+                                    style={{ width: `${Math.min(100, inputLevel * 100)}%` }}
+                                />
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Control Buttons */}
+                    <div className="flex gap-2 sm:gap-3">
+                        <button
+                            onClick={toggleMute}
+                            className={`px-4 sm:px-6 py-3 sm:py-4 font-bold text-white transition-all duration-200 rounded-full shadow-lg hover:scale-105 active:scale-95 focus:outline-none ring-offset-2 focus:ring-2 ${
+                                isMuted
+                                    ? 'bg-yellow-500 hover:bg-yellow-600 ring-yellow-400'
+                                    : 'bg-blue-500 hover:bg-blue-600 ring-blue-400'
+                            }`}
+                        >
+                            <span className="text-lg sm:text-xl">{isMuted ? '🔇' : '🎤'}</span>
+                        </button>
+                        <button
+                            onClick={handleStop}
+                            className="px-5 sm:px-8 py-3 sm:py-4 font-bold text-white text-sm sm:text-base transition-all duration-200 bg-red-500 rounded-full shadow-lg hover:bg-red-600 hover:scale-105 active:scale-95 focus:outline-none ring-offset-2 focus:ring-2 ring-red-400"
+                        >
+                            <span className="mr-1 sm:mr-2 text-lg sm:text-xl">🛑</span>
+                            End Call
+                        </button>
+                    </div>
                 </div>
             )}
 
