@@ -2,8 +2,18 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Shinchan English Tutor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Tooni - Learn English with Cartoon Friends</title>
+
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="Learn English with your favorite cartoon friends! A fun conversational learning companion for kids." />
+    <meta name="theme-color" content="#9333ea" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Tooni" />
+    <link rel="apple-touch-icon" href="/main.png" />
+    <link rel="manifest" href="/manifest.json" />
+
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
       /* Custom bounce animation for the "Connecting" state */
@@ -13,6 +23,28 @@
       }
       .animate-bounce-gentle {
         animation: bounce-gentle 2s infinite ease-in-out;
+      }
+
+      /* PWA Install prompt animation */
+      @keyframes slide-up {
+        from {
+          opacity: 0;
+          transform: translateY(100%);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .animate-slide-up {
+        animation: slide-up 0.3s ease-out forwards;
+      }
+
+      /* Safe area padding for notched devices */
+      .safe-area-inset {
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+        padding-bottom: env(safe-area-inset-bottom);
       }
     </style>
   <script type="importmap">
@@ -25,10 +57,23 @@
   }
 }
 </script>
-<link rel="stylesheet" href="/index.css">
 </head>
-  <body class="bg-yellow-50 text-slate-800 antialiased overflow-hidden">
+  <body class="bg-yellow-50 text-slate-800 antialiased overflow-hidden safe-area-inset">
     <div id="root"></div>
   <script type="module" src="/index.tsx"></script>
+  <script>
+    // Register Service Worker for PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then((registration) => {
+            console.log('SW registered:', registration.scope);
+          })
+          .catch((error) => {
+            console.log('SW registration failed:', error);
+          });
+      });
+    }
+  </script>
 </body>
 </html>

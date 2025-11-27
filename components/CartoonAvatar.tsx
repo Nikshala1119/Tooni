@@ -48,8 +48,7 @@ const CartoonAvatar: React.FC<CartoonAvatarProps> = ({ volume, isTalking, isList
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="133.78 173.58 565.15 686.34"
-          width="320"
-          height="388"
+          className="w-48 h-60 sm:w-64 sm:h-80 md:w-80 md:h-96"
         >
           {/* Hair */}
           <g transform="matrix(1, 0, 0, 1, -92.23, 10.17)">
@@ -186,24 +185,25 @@ const CartoonAvatar: React.FC<CartoonAvatarProps> = ({ volume, isTalking, isList
 
       {/* Status Indicators */}
       {isListening && !isTalking && isConnected && !isMuted && (
-        <div className="absolute top-0 right-0 flex items-center gap-1.5 bg-green-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
-          <span className="relative flex h-2 w-2">
+        <div className="absolute top-0 right-0 flex items-center gap-1 sm:gap-1.5 bg-green-500 text-white text-[10px] sm:text-xs font-bold px-2 sm:px-3 py-1 sm:py-1.5 rounded-full shadow-lg">
+          <span className="relative flex h-1.5 w-1.5 sm:h-2 sm:w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+            <span className="relative inline-flex rounded-full h-1.5 w-1.5 sm:h-2 sm:w-2 bg-white"></span>
           </span>
-          Listening...
+          <span className="hidden sm:inline">Listening...</span>
+          <span className="sm:hidden">...</span>
         </div>
       )}
 
       {isMuted && isConnected && (
-        <div className="absolute top-0 right-0 flex items-center gap-1 bg-amber-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
-          🔇 Muted
+        <div className="absolute top-0 right-0 flex items-center gap-1 bg-amber-500 text-white text-[10px] sm:text-xs font-bold px-2 sm:px-3 py-1 sm:py-1.5 rounded-full shadow-lg">
+          🔇 <span className="hidden sm:inline">Muted</span>
         </div>
       )}
 
       {isTalking && isConnected && (
-        <div className="absolute top-0 right-0 flex items-center gap-1 bg-blue-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg animate-pulse">
-          🎤 Speaking
+        <div className="absolute top-0 right-0 flex items-center gap-1 bg-blue-500 text-white text-[10px] sm:text-xs font-bold px-2 sm:px-3 py-1 sm:py-1.5 rounded-full shadow-lg animate-pulse">
+          🎤 <span className="hidden sm:inline">Speaking</span>
         </div>
       )}
     </div>

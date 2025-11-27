@@ -1,6 +1,6 @@
 {
-  "name": "Shinchan English Tutor",
-  "description": "A conversational English learning companion for kids, powered by Gemini Live API.",
+  "name": "Tooni",
+  "description": "Learn English with your favorite cartoon friends! A fun conversational learning companion for kids.",
   "requestFramePermissions": [
     "microphone"
   ]
