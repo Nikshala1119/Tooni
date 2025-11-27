@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import CartoonAvatar from './components/CartoonAvatar';
 import BlueyAvatar from './components/BlueyAvatar';
 import InstallPrompt from './components/InstallPrompt';
+import ErrorModal from './components/ErrorModal';
 import { useLiveSession, Character } from './hooks/useLiveSession';
-import { ConnectionState } from './types';
+import { ConnectionState, ErrorType } from './types';
 
 export default function App() {
   const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null);
-  const { connect, disconnect, connectionState, volume, inputLevel, isTalking, isMuted, isGreetingComplete, toggleMute } = useLiveSession(selectedCharacter || 'shinchan');
+  const { connect, disconnect, connectionState, errorType, clearError, volume, inputLevel, isTalking, isMuted, isGreetingComplete, toggleMute } = useLiveSession(selectedCharacter || 'shinchan');
   const [hasInteracted, setHasInteracted] = useState(false);
 
   const handleSelectCharacter = (character: Character) => {
@@ -21,6 +22,16 @@ export default function App() {
 
   const handleStop = () => {
     disconnect();
+    setSelectedCharacter(null); // Go back to character selection
+  };
+
+  const handleErrorRetry = () => {
+    clearError();
+    connect();
+  };
+
+  const handleErrorDismiss = () => {
+    clearError();
     setSelectedCharacter(null); // Go back to character selection
   };
 
@@ -211,11 +222,6 @@ export default function App() {
                 </div>
             )}
 
-            {isError && (
-                <div className="mt-3 sm:mt-4 p-2.5 sm:p-3 bg-red-100 text-red-700 rounded-lg text-xs sm:text-sm font-semibold border border-red-200">
-                    Oops! Something went wrong. Try again.
-                </div>
-            )}
         </div>
 
         {/* Instructions */}
@@ -232,6 +238,16 @@ export default function App() {
 
       {/* PWA Install Prompt */}
       <InstallPrompt />
+
+      {/* Error Modal */}
+      {isError && errorType !== ErrorType.NONE && (
+        <ErrorModal
+          errorType={errorType}
+          characterName={characterName}
+          onRetry={handleErrorRetry}
+          onDismiss={handleErrorDismiss}
+        />
+      )}
     </div>
   );
 }

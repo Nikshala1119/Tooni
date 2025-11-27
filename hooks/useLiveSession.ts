@@ -1,7 +1,47 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { GoogleGenAI, LiveServerMessage, Modality } from '@google/genai';
-import { ConnectionState } from '../types';
+import { ConnectionState, ErrorType } from '../types';
 import { base64ToBytes, createPcmBlob, decodeAudioData, resampleAudio } from '../utils/audioUtils';
+
+// Helper function to detect error type from various error sources
+function detectErrorType(error: unknown): ErrorType {
+  if (!error) return ErrorType.UNKNOWN;
+
+  const errorMessage = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase();
+  const errorName = error instanceof Error ? error.name : '';
+
+  // Microphone permission errors
+  if (errorName === 'NotAllowedError' || errorMessage.includes('permission denied') || errorMessage.includes('not allowed')) {
+    return ErrorType.MIC_PERMISSION_DENIED;
+  }
+
+  // Microphone not found
+  if (errorName === 'NotFoundError' || errorMessage.includes('not found') || errorMessage.includes('no device')) {
+    return ErrorType.MIC_NOT_FOUND;
+  }
+
+  // Browser not supported
+  if (errorName === 'NotSupportedError' || errorMessage.includes('not supported') || errorMessage.includes('mediadevices')) {
+    return ErrorType.BROWSER_NOT_SUPPORTED;
+  }
+
+  // API key issues
+  if (errorMessage.includes('api key') || errorMessage.includes('apikey') || errorMessage.includes('unauthorized') || errorMessage.includes('401')) {
+    return ErrorType.API_KEY_MISSING;
+  }
+
+  // Network errors
+  if (errorMessage.includes('network') || errorMessage.includes('fetch') || errorMessage.includes('offline') || errorName === 'TypeError') {
+    return ErrorType.NETWORK_ERROR;
+  }
+
+  // Connection/API errors
+  if (errorMessage.includes('connect') || errorMessage.includes('websocket') || errorMessage.includes('socket')) {
+    return ErrorType.API_CONNECTION_FAILED;
+  }
+
+  return ErrorType.UNKNOWN;
+}
 
 export type Character = 'shinchan' | 'bluey';
 
@@ -24,6 +64,7 @@ const INPUT_LEVEL_SMOOTHING = 0.3; // Smoothing factor for input level visualiza
 
 export function useLiveSession(character: Character = 'shinchan') {
   const [connectionState, setConnectionState] = useState<ConnectionState>(ConnectionState.DISCONNECTED);
+  const [errorType, setErrorType] = useState<ErrorType>(ErrorType.NONE); // Track specific error type
   const [volume, setVolume] = useState(0); // Output volume (character speaking)
   const [inputLevel, setInputLevel] = useState(0); // Input volume (user's mic level)
   const [isTalking, setIsTalking] = useState(false); // Character is speaking
@@ -89,16 +130,38 @@ export function useLiveSession(character: Character = 'shinchan') {
     setIsGreetingComplete(false);
     isGreetingCompleteRef.current = false;
     smoothedInputLevelRef.current = 0;
+    // Don't reset errorType here - let it persist so UI can show the error
+  }, []);
+
+  // Function to clear error and reset state
+  const clearError = useCallback(() => {
+    setErrorType(ErrorType.NONE);
+    setConnectionState(ConnectionState.DISCONNECTED);
   }, []);
 
   const connect = useCallback(async () => {
     if (connectionState === ConnectionState.CONNECTING || connectionState === ConnectionState.CONNECTED) return;
-    
+
+    // Clear any previous error
+    setErrorType(ErrorType.NONE);
     setConnectionState(ConnectionState.CONNECTING);
 
     try {
+      // Check browser compatibility first
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw Object.assign(new Error('Browser does not support media devices'), { name: 'NotSupportedError' });
+      }
+
+      // Check if online
+      if (!navigator.onLine) {
+        throw new Error('network offline');
+      }
+
       // 1. Setup Audio Output Context
       const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContextClass) {
+        throw Object.assign(new Error('AudioContext not supported'), { name: 'NotSupportedError' });
+      }
       const outputCtx = new AudioContextClass({ sampleRate: 24000 });
       audioContextRef.current = outputCtx;
 
@@ -317,10 +380,18 @@ export function useLiveSession(character: Character = 'shinchan') {
                 }
             },
             onclose: () => {
+                console.log("Session closed");
+                // Only set error if we were connected (unexpected close)
+                if (connectionState === ConnectionState.CONNECTED) {
+                    setErrorType(ErrorType.SESSION_ENDED);
+                    setConnectionState(ConnectionState.ERROR);
+                }
                 cleanup();
             },
             onerror: (e) => {
                 console.error("Live API Error", e);
+                const detectedError = detectErrorType(e);
+                setErrorType(detectedError === ErrorType.UNKNOWN ? ErrorType.API_CONNECTION_FAILED : detectedError);
                 setConnectionState(ConnectionState.ERROR);
                 cleanup();
             }
@@ -331,6 +402,8 @@ export function useLiveSession(character: Character = 'shinchan') {
 
     } catch (error) {
       console.error("Connection failed", error);
+      const detectedError = detectErrorType(error);
+      setErrorType(detectedError);
       setConnectionState(ConnectionState.ERROR);
       cleanup();
     }
@@ -346,6 +419,8 @@ export function useLiveSession(character: Character = 'shinchan') {
     connect,
     disconnect: cleanup,
     connectionState,
+    errorType,
+    clearError,
     volume,
     inputLevel,
     isTalking,

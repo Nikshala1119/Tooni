@@ -46,6 +46,35 @@
         padding-right: env(safe-area-inset-right);
         padding-bottom: env(safe-area-inset-bottom);
       }
+
+      /* Error modal animations */
+      @keyframes bounce-in {
+        0% {
+          opacity: 0;
+          transform: scale(0.3);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+        70% {
+          transform: scale(0.9);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+      .animate-bounce-in {
+        animation: bounce-in 0.5s ease-out forwards;
+      }
+
+      @keyframes wiggle {
+        0%, 100% { transform: rotate(-3deg); }
+        50% { transform: rotate(3deg); }
+      }
+      .animate-wiggle {
+        animation: wiggle 0.5s ease-in-out infinite;
+      }
     </style>
   <script type="importmap">
 {
