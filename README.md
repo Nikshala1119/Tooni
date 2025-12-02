@@ -177,18 +177,92 @@ To accomplish this:
 
 The characters aren't static images—they're fully animated SVG graphics that respond to the conversation in real-time.
 
-To accomplish this:
+### Animation Architecture
 
-1. **Volume-Responsive Mouth Animation**: The avatar's mouth opening is calculated as `5 + volume * 25`, creating natural lip-sync with the character's speech.
+<div align="center">
+<img src="docs/svg-animation-diagram.svg" alt="SVG Animation System Diagram" width="800"/>
+</div>
 
-2. **Natural Blinking**: Random blink intervals (2.5-4.5 seconds) make the characters feel alive.
+The avatar system uses a combination of **audio-reactive animations** and **timer-based behaviors** to create lifelike characters:
 
-3. **Body Animation**: A subtle bounce animation (±3px, 0.5s cycle) gives the characters energy and presence.
+### Animation States
 
-4. **Status Indicators**: Visual cues show the current state:
-   - Green glow: Listening to the child
-   - Blue glow: Character is speaking
-   - Amber glow: Microphone is muted
+<div align="center">
+<img src="docs/animation-states.svg" alt="Avatar Animation States" width="900"/>
+</div>
+
+Each avatar can be in one of four visual states:
+
+| State | Glow Color | Mouth | Triggered By |
+|-------|-----------|-------|--------------|
+| **Idle/Disconnected** | None | Closed | `isConnected: false` |
+| **Listening** | 🟢 Green | Small | `isListening: true` |
+| **Speaking** | 🔵 Blue | Animated | `isTalking: true` |
+| **Muted** | 🟡 Amber | Closed | `isMuted: true` |
+
+### Audio → Animation Pipeline
+
+<div align="center">
+<img src="docs/audio-to-animation-pipeline.svg" alt="Audio to Animation Pipeline" width="1000"/>
+</div>
+
+The lip-sync system works through this pipeline:
+
+```
+ElevenLabs Audio (24kHz) → Web Audio API → Volume Analysis → Mouth Calculation → SVG Update
+```
+
+**Key Formula:**
+```typescript
+const mouthOpen = isTalking ? Math.max(5, Math.min(20, 5 + volume * 25)) : 0;
+```
+
+This maps audio volume (0.0–1.0) to mouth openness (5–20 pixels), creating smooth lip-sync.
+
+### Component Props
+
+```typescript
+interface AvatarProps {
+  volume: number;      // 0.0 to 1.0 - audio amplitude
+  isTalking: boolean;  // character is speaking
+  isListening: boolean; // mic is active, waiting for input
+  isConnected: boolean; // WebSocket connected
+  isMuted?: boolean;    // microphone muted
+}
+```
+
+### Animation Details
+
+| Animation | Trigger | Timing | Effect |
+|-----------|---------|--------|--------|
+| **Lip Sync** | `volume` prop | Real-time | `ellipse.ry = 5 + (volume × 25)` |
+| **Eye Blink** | Timer | 2.5–4.5s random | `opacity: 1 → 0 → 1` (150ms) |
+| **Body Bounce** | Timer | 500ms interval | `translateY: 0 ↔ -3px` |
+| **Status Glow** | State props | Immediate | Ring color change |
+
+### SVG Structure
+
+Each character is built from layered SVG paths:
+
+```
+<svg>
+  ├── Hair/Ears (static)
+  ├── Face/Skin (static)
+  ├── Eyes (blink animation)
+  │   ├── Eye whites (conditional render)
+  │   └── Pupils (conditional render)
+  ├── Mouth (lip-sync animation)
+  │   ├── Closed state (path)
+  │   └── Open state (ellipse with dynamic ry)
+  ├── Body/Clothes (bounce transform)
+  └── Status Indicators (conditional badges)
+</svg>
+```
+
+### Code Reference
+
+- **Shinchan Avatar**: [`components/CartoonAvatar.tsx`](components/CartoonAvatar.tsx)
+- **Bluey Avatar**: [`components/BlueyAvatar.tsx`](components/BlueyAvatar.tsx)
 
 ## Progressive Web App (PWA)
 

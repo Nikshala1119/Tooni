@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 350" style="background: #1a1a2e">
+  <!-- Title -->
+  <text x="550" y="35" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#ffffff">Audio → Animation Pipeline</text>
+
+  <!-- Step 1: ElevenLabs Audio -->
+  <g transform="translate(30, 70)">
+    <rect x="0" y="0" width="180" height="120" rx="10" fill="#16213e" stroke="#8b5cf6" stroke-width="2"/>
+    <text x="90" y="25" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#8b5cf6">1. Audio Source</text>
+
+    <!-- ElevenLabs logo placeholder -->
+    <rect x="40" y="40" width="100" height="35" rx="5" fill="#1e3a5f"/>
+    <text x="90" y="62" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#c4b5fd">ElevenLabs</text>
+
+    <text x="90" y="95" text-anchor="middle" font-family="monospace" font-size="9" fill="#94a3b8">24kHz PCM Stream</text>
+    <text x="90" y="110" text-anchor="middle" font-family="monospace" font-size="9" fill="#94a3b8">Character Voice</text>
+  </g>
+
+  <!-- Arrow 1 -->
+  <g transform="translate(210, 120)">
+    <line x1="0" y1="0" x2="50" y2="0" stroke="#4a5568" stroke-width="3"/>
+    <polygon points="50,0 40,-8 40,8" fill="#4a5568"/>
+  </g>
+
+  <!-- Step 2: Web Audio API -->
+  <g transform="translate(270, 70)">
+    <rect x="0" y="0" width="180" height="120" rx="10" fill="#16213e" stroke="#3b82f6" stroke-width="2"/>
+    <text x="90" y="25" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#3b82f6">2. Volume Analysis</text>
+
+    <!-- Waveform visualization -->
+    <rect x="20" y="40" width="140" height="40" rx="3" fill="#1e3a5f"/>
+    <path d="M30 60 Q45 45 60 60 Q75 75 90 60 Q105 45 120 60 Q135 75 150 60" stroke="#3b82f6" stroke-width="2" fill="none"/>
+
+    <text x="90" y="100" text-anchor="middle" font-family="monospace" font-size="9" fill="#94a3b8">Web Audio API</text>
+    <text x="90" y="112" text-anchor="middle" font-family="monospace" font-size="9" fill="#60a5fa">amplitude: 0.0 → 1.0</text>
+  </g>
+
+  <!-- Arrow 2 -->
+  <g transform="translate(450, 120)">
+    <line x1="0" y1="0" x2="50" y2="0" stroke="#4a5568" stroke-width="3"/>
+    <polygon points="50,0 40,-8 40,8" fill="#4a5568"/>
+  </g>
+
+  <!-- Step 3: Calculation -->
+  <g transform="translate(510, 70)">
+    <rect x="0" y="0" width="200" height="120" rx="10" fill="#16213e" stroke="#f59e0b" stroke-width="2"/>
+    <text x="100" y="25" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#f59e0b">3. Mouth Calculation</text>
+
+    <!-- Formula box -->
+    <rect x="15" y="40" width="170" height="50" rx="5" fill="#1e3a5f"/>
+    <text x="100" y="60" text-anchor="middle" font-family="monospace" font-size="11" fill="#fbbf24">mouthOpen =</text>
+    <text x="100" y="78" text-anchor="middle" font-family="monospace" font-size="11" fill="#fbbf24">5 + (volume × 25)</text>
+
+    <text x="100" y="108" text-anchor="middle" font-family="monospace" font-size="9" fill="#94a3b8">clamped: min(5) max(20)</text>
+  </g>
+
+  <!-- Arrow 3 -->
+  <g transform="translate(710, 120)">
+    <line x1="0" y1="0" x2="50" y2="0" stroke="#4a5568" stroke-width="3"/>
+    <polygon points="50,0 40,-8 40,8" fill="#4a5568"/>
+  </g>
+
+  <!-- Step 4: SVG Update -->
+  <g transform="translate(770, 70)">
+    <rect x="0" y="0" width="200" height="120" rx="10" fill="#16213e" stroke="#22c55e" stroke-width="2"/>
+    <text x="100" y="25" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#22c55e">4. SVG Update</text>
+
+    <!-- Code snippet -->
+    <rect x="10" y="38" width="180" height="55" rx="5" fill="#0d1117"/>
+    <text x="20" y="55" font-family="monospace" font-size="9" fill="#7ee787">&lt;ellipse</text>
+    <text x="30" y="68" font-family="monospace" font-size="9" fill="#94a3b8">cx="384"</text>
+    <text x="30" y="81" font-family="monospace" font-size="9" fill="#ffa657">ry={"{mouthOpen}"}</text>
+    <text x="20" y="94" font-family="monospace" font-size="9" fill="#7ee787">/&gt;</text>
+
+    <text x="100" y="112" text-anchor="middle" font-family="monospace" font-size="9" fill="#94a3b8">React re-render</text>
+  </g>
+
+  <!-- Result arrow -->
+  <g transform="translate(870, 190)">
+    <line x1="0" y1="0" x2="0" y2="40" stroke="#4a5568" stroke-width="3"/>
+    <polygon points="0,40 -8,30 8,30" fill="#4a5568"/>
+  </g>
+
+  <!-- Result: Animated Character -->
+  <g transform="translate(770, 240)">
+    <rect x="0" y="0" width="200" height="90" rx="10" fill="#16213e" stroke="#ec4899" stroke-width="2"/>
+    <text x="100" y="22" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#ec4899">5. Visual Result</text>
+
+    <!-- Mini character faces showing mouth states -->
+    <g transform="translate(25, 35)">
+      <!-- Closed -->
+      <circle cx="25" cy="25" r="22" fill="#f7c6a9" stroke="#333" stroke-width="1"/>
+      <ellipse cx="25" cy="30" rx="6" ry="2" fill="#4a1c1c"/>
+      <text x="25" y="65" text-anchor="middle" font-family="monospace" font-size="8" fill="#94a3b8">vol: 0</text>
+    </g>
+
+    <g transform="translate(75, 35)">
+      <!-- Medium -->
+      <circle cx="25" cy="25" r="22" fill="#f7c6a9" stroke="#333" stroke-width="1"/>
+      <ellipse cx="25" cy="32" rx="10" ry="6" fill="#4a1c1c"/>
+      <text x="25" y="65" text-anchor="middle" font-family="monospace" font-size="8" fill="#94a3b8">vol: 0.4</text>
+    </g>
+
+    <g transform="translate(125, 35)">
+      <!-- Wide open -->
+      <circle cx="25" cy="25" r="22" fill="#f7c6a9" stroke="#333" stroke-width="1"/>
+      <ellipse cx="25" cy="34" rx="15" ry="12" fill="#4a1c1c"/>
+      <ellipse cx="25" cy="40" rx="6" ry="3" fill="#e57373"/>
+      <text x="25" y="65" text-anchor="middle" font-family="monospace" font-size="8" fill="#94a3b8">vol: 0.8</text>
+    </g>
+  </g>
+
+  <!-- Timer-based animations section -->
+  <g transform="translate(30, 210)">
+    <rect x="0" y="0" width="300" height="120" rx="10" fill="#16213e" stroke="#6366f1" stroke-width="2"/>
+    <text x="150" y="22" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#6366f1">Independent Timer Animations</text>
+
+    <!-- Blink animation -->
+    <rect x="15" y="38" width="130" height="70" rx="5" fill="#1e3a5f"/>
+    <text x="80" y="55" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#a5b4fc">Eye Blink</text>
+    <text x="80" y="72" text-anchor="middle" font-family="monospace" font-size="9" fill="#94a3b8">setInterval()</text>
+    <text x="80" y="86" text-anchor="middle" font-family="monospace" font-size="9" fill="#c4b5fd">2500 + random×2000</text>
+    <text x="80" y="100" text-anchor="middle" font-family="monospace" font-size="9" fill="#94a3b8">duration: 150ms</text>
+
+    <!-- Bounce animation -->
+    <rect x="155" y="38" width="130" height="70" rx="5" fill="#1e3a5f"/>
+    <text x="220" y="55" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#a5b4fc">Body Bounce</text>
+    <text x="220" y="72" text-anchor="middle" font-family="monospace" font-size="9" fill="#94a3b8">setInterval()</text>
+    <text x="220" y="86" text-anchor="middle" font-family="monospace" font-size="9" fill="#c4b5fd">500ms</text>
+    <text x="220" y="100" text-anchor="middle" font-family="monospace" font-size="9" fill="#94a3b8">translateY: 0↔-3px</text>
+  </g>
+
+  <!-- State-based styling section -->
+  <g transform="translate(350, 210)">
+    <rect x="0" y="0" width="400" height="120" rx="10" fill="#16213e" stroke="#06b6d4" stroke-width="2"/>
+    <text x="200" y="22" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#06b6d4">State-Based Styling (Props)</text>
+
+    <!-- Connected state -->
+    <rect x="15" y="38" width="115" height="70" rx="5" fill="#1e3a5f"/>
+    <text x="72" y="55" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#22d3d1">isConnected</text>
+    <text x="72" y="72" text-anchor="middle" font-family="monospace" font-size="9" fill="#94a3b8">false → grayscale</text>
+    <text x="72" y="86" text-anchor="middle" font-family="monospace" font-size="9" fill="#94a3b8">opacity: 0.5</text>
+    <text x="72" y="100" text-anchor="middle" font-family="monospace" font-size="9" fill="#22d3d1">true → normal</text>
+
+    <!-- Talking state -->
+    <rect x="140" y="38" width="115" height="70" rx="5" fill="#1e3a5f"/>
+    <text x="197" y="55" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#22d3d1">isTalking</text>
+    <text x="197" y="72" text-anchor="middle" font-family="monospace" font-size="9" fill="#94a3b8">lip-sync active</text>
+    <text x="197" y="86" text-anchor="middle" font-family="monospace" font-size="9" fill="#3b82f6">glow: blue</text>
+    <text x="197" y="100" text-anchor="middle" font-family="monospace" font-size="9" fill="#94a3b8">badge: Speaking</text>
+
+    <!-- Listening state -->
+    <rect x="265" y="38" width="120" height="70" rx="5" fill="#1e3a5f"/>
+    <text x="325" y="55" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#22d3d1">isListening</text>
+    <text x="325" y="72" text-anchor="middle" font-family="monospace" font-size="9" fill="#22c55e">glow: green</text>
+    <text x="325" y="86" text-anchor="middle" font-family="monospace" font-size="9" fill="#94a3b8">badge: Listening</text>
+    <text x="325" y="100" text-anchor="middle" font-family="monospace" font-size="9" fill="#94a3b8">ping animation</text>
+  </g>
+</svg>
