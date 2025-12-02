@@ -1,3 +1,15 @@
+# The Spark of Inspiration
+
+It started with a simple observation in a rural classroom. I watched a room full of bright-eyed six-year-olds struggle through a rote English lesson—repeating words they didn't understand, taught by an overwhelmed teacher managing 60 students. But during lunch break, those same children huddled around a cracked smartphone, laughing hysterically at Shinchan's antics, perfectly mimicking his dialogues.
+
+That contrast haunted me: *Why do children memorize cartoon dialogues effortlessly but struggle with basic literacy?*
+
+The answer was obvious—**emotional connection**. Children don't learn from Shinchan because he's educational. They learn because they *love* him.
+
+This sparked the core question behind Tooni: **What if children could actually *talk* to their favorite cartoon characters—and learn English in the process?**
+
+---
+
 # Overview
 
 Tooni uses generative AI to transform English learning for children by letting them have real-time voice conversations with their favorite cartoon characters—Shinchan and Bluey. We combine **Google Gemini's Live API** for real-time conversational intelligence with **ElevenLabs' voice synthesis** to create authentic, character-accurate voices that kids instantly recognize and love.
